@@ -464,7 +464,7 @@ public class ImageEditor extends View {
             try {
                 if (res == 0) {
                     String convertedDirectory = directory == null ? "" : directory;
-                    String path = filename + convertedDirectory;
+                    String path = convertedDirectory + filename;
                     ExifInterface exif = new ExifInterface(path);
                     int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
                     int rotationInDegrees = exifToDegrees(exifOrientation);
