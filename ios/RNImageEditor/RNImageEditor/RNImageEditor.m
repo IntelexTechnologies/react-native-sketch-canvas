@@ -539,7 +539,7 @@
 - (NSData*)getImageData:(UIImage*)img type:(NSString*) type {
     NSData *data;
     if ([type isEqualToString: @"jpg"]) {
-        data = UIImageJPEGRepresentation(img, 1.0);
+        data = UIImageJPEGRepresentation(img, 0.95);
     } else {
         data = UIImagePNGRepresentation(img);
     }

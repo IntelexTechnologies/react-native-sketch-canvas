@@ -439,7 +439,7 @@ public class ImageEditor extends View {
             try {
                 bitmap.compress(
                         format.equals("png") ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG,
-                        format.equals("png") ? 100 : 90,
+                        format.equals("png") ? 100 : 95,
                         new FileOutputStream(file));
                 this.onSaved(true, file.getPath());
             } catch (Exception e) {
