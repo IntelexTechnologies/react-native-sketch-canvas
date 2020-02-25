@@ -64,7 +64,7 @@ public class ImageEditor extends View {
     // Shapes/Entities
     private final ArrayList<MotionEntity> mEntities = new ArrayList<MotionEntity>();
     private MotionEntity mSelectedEntity;
-    private int mEntityBorderColor = Color.TRANSPARENT;
+    private int mEntityBorderColor = Color.RED;
     private BorderStyle mEntityBorderStyle = BorderStyle.DASHED;
     private float mEntityBorderStrokeWidth = 1;
     private float mEntityStrokeWidth = 5;
@@ -151,7 +151,7 @@ public class ImageEditor extends View {
             }
         }
 
-        drawAllEntities(canvas);
+        drawAllEntities(canvas, true);
 
         return bitmap;
     }
@@ -319,7 +319,7 @@ public class ImageEditor extends View {
         }
 
         if (!mEntities.isEmpty()) {
-            drawAllEntities(mSketchCanvas);
+            drawAllEntities(mSketchCanvas,false);
         }
     }
 
@@ -770,12 +770,30 @@ public class ImageEditor extends View {
         entity.setBorderStyle(mEntityBorderStyle);
     }
 
-    private void drawAllEntities(Canvas canvas) {
+//    private void drawAllEntitiesForSave(Canvas canvas) {
+//        Paint paint = new Paint();
+//        paint.setColor(mEntityStrokeColor);
+//        paint.setStrokeWidth(mEntityStrokeWidth);
+//        Paint borderPaint = new Paint();
+//        borderPaint.setColor(Color.TRANSPARENT);
+//
+//        for (int i = 0; i < mEntities.size(); i++) {
+//            mEntities.get(i).setBorderPaint(borderPaint);
+//            mEntities.get(i).draw(canvas, paint);
+//        }
+//    }
+
+    private void drawAllEntities(Canvas canvas, Boolean forSave ) {
         Paint paint = new Paint();
         paint.setColor(mEntityStrokeColor);
         paint.setStrokeWidth(mEntityStrokeWidth);
+        Paint borderPaint = new Paint();
+        borderPaint.setColor(Color.TRANSPARENT);
 
         for (int i = 0; i < mEntities.size(); i++) {
+           if(forSave)
+               mEntities.get(i).setBorderPaint(borderPaint);
+
             mEntities.get(i).draw(canvas, paint);
         }
     }
@@ -971,10 +989,31 @@ public class ImageEditor extends View {
         @Override
         public boolean onMove(MoveGestureDetector detector) {
             if (mSelectedEntity != null) {
-                handleTranslate(detector.getFocusDelta());
-                return true;
+                //get entity frame
+                PointF centerPoint =  mSelectedEntity.absoluteCenter();
+                float width = mSelectedEntity.getWidth();
+                float height = mSelectedEntity.getHeight();
+
+                //get entity bounds to see if the drag was generated within bounds
+                float minX = centerPoint.x - (width * mSelectedEntity.getHolyScale() * 0.5F);
+                float minY = centerPoint.y - (height * mSelectedEntity.getHolyScale() * 0.5F);
+                float maxX = centerPoint.x + (width * mSelectedEntity.getHolyScale() * 0.5F);
+                float maxY = centerPoint.y + (height * mSelectedEntity.getHolyScale() * 0.5F);
+
+                //get the coordinates of touch
+                float touchX = detector.mCurrFocusInternal.x;
+                float touchY = detector.mCurrFocusInternal.y;
+
+                if ((touchX >= minX && touchX <= maxX) && (touchY >= minY && touchY <= maxY)) {
+                    handleTranslate(detector.getFocusDelta());
+                    return true;
+                }
+                return false;
+
             }
             return false;
         }
     }
+
+
 }

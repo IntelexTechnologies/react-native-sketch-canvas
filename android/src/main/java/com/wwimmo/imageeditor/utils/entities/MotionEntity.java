@@ -147,6 +147,10 @@ public abstract class MotionEntity {
         return topLeftY + getHeight() * holyScale * 0.5F;
     }
 
+    public float getHolyScale() {
+        return holyScale;
+    }
+
     public PointF absoluteCenter() {
         float topLeftX = layer.getX() * canvasWidth;
         float topLeftY = layer.getY() * canvasHeight;
