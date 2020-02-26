@@ -153,7 +153,6 @@
         if ([entity isSelected]) {
             [entity setNeedsDisplay];
         }
-        [self drawRect:entity.frame];
         
         [self addSubview:entity];
     }
