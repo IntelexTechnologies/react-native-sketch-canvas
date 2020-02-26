@@ -43,6 +43,7 @@ public class ImageEditorManager extends SimpleViewManager<ImageEditor> {
     public static final int COMMAND_INCREASE_SHAPE_FONTSIZE = 10;
     public static final int COMMAND_DECREASE_SHAPE_FONTSIZE = 11;
     public static final int COMMAND_CHANGE_SHAPE_TEXT = 12;
+    public static final int COMMAND_SELECTED_TEXT = 13;
 
     public static ImageEditor Canvas = null;
 
@@ -100,6 +101,7 @@ public class ImageEditorManager extends SimpleViewManager<ImageEditor> {
         map.put("increaseShapeFontsize", COMMAND_INCREASE_SHAPE_FONTSIZE);
         map.put("decreaseShapeFontsize", COMMAND_DECREASE_SHAPE_FONTSIZE);
         map.put("changeShapeText", COMMAND_CHANGE_SHAPE_TEXT);
+        map.put("selectedShapeText", COMMAND_SELECTED_TEXT);
 
         return map;
     }
@@ -197,6 +199,10 @@ public class ImageEditorManager extends SimpleViewManager<ImageEditor> {
             case COMMAND_CHANGE_SHAPE_TEXT: {
                 String newText = args.getString(0);
                 view.setTextEntityText(newText);
+                return;
+            }
+            case COMMAND_SELECTED_TEXT: {
+                view.selectedText();
                 return;
             }
             default:

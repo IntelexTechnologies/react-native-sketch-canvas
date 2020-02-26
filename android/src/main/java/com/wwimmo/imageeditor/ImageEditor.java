@@ -12,6 +12,7 @@ import android.graphics.Rect;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.os.Environment;
+import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -24,6 +25,7 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 
@@ -64,7 +66,7 @@ public class ImageEditor extends View {
     // Shapes/Entities
     private final ArrayList<MotionEntity> mEntities = new ArrayList<MotionEntity>();
     private MotionEntity mSelectedEntity;
-    private int mEntityBorderColor = Color.TRANSPARENT;
+    private int mEntityBorderColor = Color.RED;
     private BorderStyle mEntityBorderStyle = BorderStyle.DASHED;
     private float mEntityBorderStrokeWidth = 1;
     private float mEntityStrokeWidth = 5;
@@ -151,7 +153,7 @@ public class ImageEditor extends View {
             }
         }
 
-        drawAllEntities(canvas);
+        drawAllEntitiesForSave(canvas);
 
         return bitmap;
     }
@@ -338,7 +340,7 @@ public class ImageEditor extends View {
     private int exifToDegrees(int exifOrientation) {
         if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
             return 90;
-        } else if(exifOrientation == ExifInterface.ORIENTATION_NORMAL) { 
+        } else if(exifOrientation == ExifInterface.ORIENTATION_NORMAL) {
             return 0;
         } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
             return 180;
@@ -357,6 +359,20 @@ public class ImageEditor extends View {
         final WritableMap event = Arguments.createMap();
         boolean isShapeSelected = nextSelectedEntity != null;
         event.putBoolean("isShapeSelected", isShapeSelected);
+
+
+        if (nextSelectedEntity != null && nextSelectedEntity instanceof TextEntity) {
+            TextEntity textEntity = (TextEntity)nextSelectedEntity;
+            WritableMap params = Arguments.createMap();
+            String selectedText = textEntity.getLayer().getText();
+            params.putString("selectedText", selectedText);
+
+            sendEvent(mContext, "textEntitySelected", params);
+        } else {
+            WritableMap params = Arguments.createMap();
+            params.putString("selectedText", "");
+            sendEvent(mContext, "textEntitySelected", params);
+        }
 
         if (!isShapeSelected) {
             // This is ugly and actually was my last resort to fix the "do not draw when deselecting" problem
@@ -386,6 +402,17 @@ public class ImageEditor extends View {
                 getId(),
                 "topChange",
                 event);
+    }
+
+    public void selectedText() {
+        TextEntity textEntity = getSelectedTextEntity();
+        if(textEntity != null) {
+            WritableMap params = Arguments.createMap();
+            String currentInput = textEntity.getLayer().getText();
+            params.putString("currentInput", currentInput);
+
+            sendEvent(mContext, "selectedText", params);
+        }
     }
 
     /**
@@ -460,7 +487,7 @@ public class ImageEditor extends View {
                     mContext.getPackageName());
             BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
             Bitmap bitmap = null;
-            
+
             try {
                 if (res == 0) {
                     String convertedDirectory = directory == null ? "" : directory;
@@ -622,7 +649,7 @@ public class ImageEditor extends View {
                 break;
         }
     }
-    
+
     protected void addCircleEntity() {
         Layer circleLayer = new Layer();
         CircleEntity circleEntity = null;
@@ -770,6 +797,19 @@ public class ImageEditor extends View {
         entity.setBorderStyle(mEntityBorderStyle);
     }
 
+    private void drawAllEntitiesForSave(Canvas canvas) {
+        Paint paint = new Paint();
+        paint.setColor(mEntityStrokeColor);
+        paint.setStrokeWidth(mEntityStrokeWidth);
+        Paint borderPaint = new Paint();
+        borderPaint.setColor(Color.TRANSPARENT);
+
+        for (int i = 0; i < mEntities.size(); i++) {
+            mEntities.get(i).setBorderPaint(borderPaint);
+            mEntities.get(i).draw(canvas, paint);
+        }
+    }
+
     private void drawAllEntities(Canvas canvas) {
         Paint paint = new Paint();
         paint.setColor(mEntityStrokeColor);
@@ -784,7 +824,7 @@ public class ImageEditor extends View {
         if (mSelectedEntity != null) {
             float newCenterX = mSelectedEntity.absoluteCenterX() + delta.x;
             float newCenterY = mSelectedEntity.absoluteCenterY() + delta.y;
-            
+
             // limit entity center to screen bounds
             boolean needUpdateUI = false;
             if (newCenterX >= 0 && newCenterX <= getWidth()) {
@@ -890,6 +930,10 @@ public class ImageEditor extends View {
         }
     }
 
+    private void sendEvent(ThemedReactContext reactContext, String eventName, @Nullable WritableMap params) {
+        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(eventName, params);
+    }
+
     /**
      *
      * Gesture Listeners
@@ -913,7 +957,7 @@ public class ImageEditor extends View {
                 mMoveGestureDetector.onTouchEvent(event);
                 return true;
             } else {
-              return false;
+                return false;
             }
         }
     };
@@ -935,7 +979,7 @@ public class ImageEditor extends View {
 
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
-            // Update mSelectedEntity. 
+            // Update mSelectedEntity.
             // Fires onShapeSelectionChanged (JS-PanResponder enabling/disabling)
             updateSelectionOnTap(e);
             return true;
