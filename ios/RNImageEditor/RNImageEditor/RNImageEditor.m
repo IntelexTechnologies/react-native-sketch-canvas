@@ -13,11 +13,13 @@
 #import "entities/TriangleEntity.h"
 #import "entities/ArrowEntity.h"
 #import "entities/TextEntity.h"
+#import "CanvasHistory.h"
 
 @implementation RNImageEditor
 {
     RCTEventDispatcher *_eventDispatcher;
     NSMutableArray *_paths;
+    NSMutableArray *_canvasHistory;
     RNImageEditorData *_currentPath;
     
     CGSize _lastSize;
@@ -39,6 +41,7 @@
     if (self) {
         _eventDispatcher = eventDispatcher;
         _paths = [NSMutableArray new];
+        _canvasHistory = [NSMutableArray new];
         _needsFullRedraw = YES;
         
         self.backgroundColor = [UIColor clearColor];
@@ -302,6 +305,10 @@
                     strokeColor: strokeColor
                     strokeWidth: strokeWidth];
     [_paths addObject: _currentPath];
+      CanvasHistory *stroke =[[CanvasHistory alloc]
+              initWithPreviousStroke:nil
+              currentStroke:_currentPath];
+    [_canvasHistory addObject:stroke];
 }
 
 - (void) addPath:(int) pathId strokeColor:(UIColor*) strokeColor strokeWidth:(int) strokeWidth points:(NSArray*) points {
@@ -323,6 +330,10 @@
                                                             strokeWidth: strokeWidth
                                                                  points: points];
         [_paths addObject: data];
+        CanvasHistory *stroke =[[CanvasHistory alloc]
+                  initWithPreviousStroke:nil
+                  currentStroke:data];
+        [_canvasHistory addObject:stroke];
         [data drawInContext:_drawingContext];
         [self setFrozenImageNeedsUpdate];
         [self setNeedsDisplay];
@@ -331,15 +342,30 @@
 
 - (void)deletePath:(int) pathId {
     int index = -1;
-    for(int i=0; i<_paths.count; i++) {
-        if (((RNImageEditorData*)_paths[i]).pathId == pathId) {
-            index = i;
-            break;
+    NSUInteger historyCount = _canvasHistory.count;
+    if(historyCount > 0){
+        CanvasHistory *lastEntry =(CanvasHistory*) _canvasHistory[historyCount -1];
+        if(lastEntry.currStroke != nil){
+            for(int i=0; i<_paths.count; i++) {
+                if (((RNImageEditorData*)_paths[i]).pathId == pathId) {
+                    index = i;
+                    break;
+                }
+            }
+            if(index > -1){
+                [_paths removeObjectAtIndex: index];
+            }
         }
+        
+        if(lastEntry.currEntity != nil){
+            [_motionEntities removeObject:lastEntry.currEntity];
+            index = 1;
+        }
+        
     }
     
     if (index > -1) {
-        [_paths removeObjectAtIndex: index];
+        [_canvasHistory removeObjectAtIndex: historyCount-1];
         _needsFullRedraw = YES;
         [self setNeedsDisplay];
         [self notifyPathsUpdate];
@@ -760,6 +786,10 @@
                           entityStrokeColor:self.entityStrokeColor];
     
     [self.motionEntities addObject:entity];
+    CanvasHistory *captureEntity =[[CanvasHistory alloc]
+                                   initWithPreviousEntity:nil
+                                   currentEntity:entity];
+    [_canvasHistory addObject:captureEntity];
     [self addPanGesture:entity];
     [self onShapeSelectionChanged:entity];
     [self selectEntity:entity];

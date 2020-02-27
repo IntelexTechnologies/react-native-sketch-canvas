@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		25CC4E12240827CB0045967B /* CanvasHistory.m in Sources */ = {isa = PBXBuildFile; fileRef = 25CC4E11240827CB0045967B /* CanvasHistory.m */; };
 		8579D13721889DE500773C27 /* TextEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 8579D13621889DE500773C27 /* TextEntity.m */; };
 		858EE6372180DFBD009C9E08 /* CircleEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 858EE6362180DFBD009C9E08 /* CircleEntity.m */; };
 		85C9F6F2218879DB00BD64B4 /* RectEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 85C9F6F1218879DB00BD64B4 /* RectEntity.m */; };
@@ -35,6 +36,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		25CC4E102408273E0045967B /* CanvasHistory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CanvasHistory.h; sourceTree = "<group>"; };
+		25CC4E11240827CB0045967B /* CanvasHistory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CanvasHistory.m; sourceTree = "<group>"; };
 		8579D13521889D4800773C27 /* TextEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextEntity.h; sourceTree = "<group>"; };
 		8579D13621889DE500773C27 /* TextEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TextEntity.m; sourceTree = "<group>"; };
 		858EE6312180DEC5009C9E08 /* CircleEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CircleEntity.h; sourceTree = "<group>"; };
@@ -130,6 +133,8 @@
 				DED3A13520A4159A00D72FBF /* RNImageEditorUtility.m */,
 				D70446F422968240007BBE77 /* BackgroundText.h */,
 				D70446F5229682C5007BBE77 /* BackgroundText.m */,
+				25CC4E102408273E0045967B /* CanvasHistory.h */,
+				25CC4E11240827CB0045967B /* CanvasHistory.m */,
 			);
 			path = RNImageEditor;
 			sourceTree = "<group>";
@@ -192,6 +197,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				25CC4E12240827CB0045967B /* CanvasHistory.m in Sources */,
 				DEFBA25D1F322B6000A4545C /* RNImageEditor.m in Sources */,
 				8579D13721889DE500773C27 /* TextEntity.m in Sources */,
 				DED3A13720A4159A00D72FBF /* RNImageEditorUtility.m in Sources */,
