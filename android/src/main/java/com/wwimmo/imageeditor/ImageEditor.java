@@ -54,6 +54,7 @@ public class ImageEditor extends View {
     // Data
     private ArrayList<SketchData> mPaths = new ArrayList<SketchData>();
     private SketchData mCurrentPath = null;
+    private ArrayList<CanvasHistory> mHistory = new ArrayList<CanvasHistory>();
 
     // Gesture Detection
     private ScaleGestureDetector mScaleGestureDetector;
@@ -175,6 +176,7 @@ public class ImageEditor extends View {
         }
         mEntityStrokeWidth = Utility.convertPxToDpAsFloat(mContext.getResources().getDisplayMetrics(), strokeWidth);
         mPaths.add(mCurrentPath);
+        mHistory.add(new CanvasHistory(null,mCurrentPath));
         boolean isErase = strokeColor == Color.TRANSPARENT;
         if (isErase && mDisableHardwareAccelerated == false) {
             mDisableHardwareAccelerated = true;
@@ -212,6 +214,7 @@ public class ImageEditor extends View {
         if (!exist) {
             SketchData newPath = new SketchData(id, strokeColor, strokeWidth, points);
             mPaths.add(newPath);
+            mHistory.add(new CanvasHistory(null,mCurrentPath));
             boolean isErase = strokeColor == Color.TRANSPARENT;
             if (isErase && mDisableHardwareAccelerated == false) {
                 mDisableHardwareAccelerated = true;
@@ -223,20 +226,34 @@ public class ImageEditor extends View {
     }
 
     public void deletePath(int id) {
-        int index = -1;
-        for(int i = 0; i<mPaths.size(); i++) {
-            if (mPaths.get(i).id == id) {
-                index = i;
-                break;
-            }
-        }
+     int index = -1;
+     if (mHistory.size() > 0) {
+         CanvasHistory lastEntity = mHistory.get(mHistory.size()-1);
+         if(lastEntity.currStroke != null) {
+             int strokeId = lastEntity.currStroke.id;
+             for(int i = 0; i<mPaths.size(); i++) {
+                 if (mPaths.get(i).id == strokeId) {
+                     index = i;
+                     break;
+                 }
+             }
+             mPaths.remove(index);
+         }
+         if(lastEntity.currEntity != null){
+             mEntities.remove(lastEntity.currEntity);
+             if(lastEntity.prevEntity != null) {
+//                    mEntities.add(lastEntity.prevEntity);
+             }
+             index=1;
+         }
+     }
 
-        if (index > -1) {
-            mPaths.remove(index);
-            mNeedsFullRedraw = true;
-            invalidateCanvas(true);
-        }
-    }
+     if (index > -1) {
+         mHistory.remove(mHistory.size()-1);
+         mNeedsFullRedraw = true;
+         invalidateCanvas(true);
+     }
+ }
 
     public void end() {
         if (mCurrentPath != null) {
@@ -338,7 +355,7 @@ public class ImageEditor extends View {
     private int exifToDegrees(int exifOrientation) {
         if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
             return 90;
-        } else if(exifOrientation == ExifInterface.ORIENTATION_NORMAL) { 
+        } else if(exifOrientation == ExifInterface.ORIENTATION_NORMAL) {
             return 0;
         } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
             return 180;
@@ -460,7 +477,7 @@ public class ImageEditor extends View {
                     mContext.getPackageName());
             BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
             Bitmap bitmap = null;
-            
+
             try {
                 if (res == 0) {
                     String convertedDirectory = directory == null ? "" : directory;
@@ -622,7 +639,7 @@ public class ImageEditor extends View {
                 break;
         }
     }
-    
+
     protected void addCircleEntity() {
         Layer circleLayer = new Layer();
         CircleEntity circleEntity = null;
@@ -755,6 +772,7 @@ public class ImageEditor extends View {
             initEntityBorder(entity);
             initialTranslateAndScale(entity);
             mEntities.add(entity);
+            mHistory.add(new CanvasHistory(null,entity));
             onShapeSelectionChanged(entity);
             selectEntity(entity);
         }
@@ -802,7 +820,7 @@ public class ImageEditor extends View {
         if (mSelectedEntity != null) {
             float newCenterX = mSelectedEntity.absoluteCenterX() + delta.x;
             float newCenterY = mSelectedEntity.absoluteCenterY() + delta.y;
-            
+
             // limit entity center to screen bounds
             boolean needUpdateUI = false;
             if (newCenterX >= 0 && newCenterX <= getWidth()) {
@@ -896,6 +914,7 @@ public class ImageEditor extends View {
         if (textEntity != null && newText != null && newText.length() > 0) {
             textEntity.getLayer().setText(newText);
             textEntity.updateEntity();
+            mHistory.add(new CanvasHistory((MotionEntity) prev,textEntity));
             invalidateCanvas(true);
         }
     }
@@ -953,7 +972,7 @@ public class ImageEditor extends View {
 
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
-            // Update mSelectedEntity. 
+            // Update mSelectedEntity.
             // Fires onShapeSelectionChanged (JS-PanResponder enabling/disabling)
             updateSelectionOnTap(e);
             return true;
