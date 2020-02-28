@@ -1068,6 +1068,4 @@ public class ImageEditor extends View {
             return false;
         }
     }
-
-
 }
