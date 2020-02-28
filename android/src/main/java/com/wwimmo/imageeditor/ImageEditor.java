@@ -704,7 +704,10 @@ public class ImageEditor extends View {
         }
 
         TextEntity textEntity = null;
-        if (mSketchCanvas.getWidth() < 100 || mSketchCanvas.getHeight() < 100) {
+        // Original logic was : if (mSketchCanvas.getWidth() < 100 || mSketchCanvas.getHeight() < 100)
+        // Temporary fix : changed if loop to <=120 because we get mSketchCanvas width and height = 120 resulting in tiny text entity added in left corner of image for the first time
+        // need to investigate this further
+        if (mSketchCanvas.getWidth() <= 120 || mSketchCanvas.getHeight() <= 120) {
             textEntity = new TextEntity(textLayer, mDrawingCanvas.getWidth(), mDrawingCanvas.getHeight());
         } else {
             textEntity = new TextEntity(textLayer, mSketchCanvas.getWidth(), mSketchCanvas.getHeight());
