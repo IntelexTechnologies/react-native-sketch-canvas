@@ -359,6 +359,7 @@
         
         if(lastEntry.currEntity != nil){
             [_motionEntities removeObject:lastEntry.currEntity];
+            [lastEntry.currEntity removeFromSuperview];
             index = 1;
         }
         
@@ -790,6 +791,7 @@
                                    initWithPreviousEntity:nil
                                    currentEntity:entity];
     [_canvasHistory addObject:captureEntity];
+    [self notifyPathsUpdate];
     [self addPanGesture:entity];
     [self onShapeSelectionChanged:entity];
     [self selectEntity:entity];
@@ -953,7 +955,8 @@
 
 - (void)notifyPathsUpdate {
     if (_onChange) {
-        _onChange(@{ @"pathsUpdate": @(_paths.count) });
+        NSUInteger countOfElements = _paths.count + self.motionEntities.count;
+        _onChange(@{ @"pathsUpdate": @(countOfElements) });
     }
 }
 

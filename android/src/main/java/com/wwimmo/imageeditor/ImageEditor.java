@@ -35,6 +35,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.wwimmo.imageeditor.utils.CanvasText;
+import com.wwimmo.imageeditor.utils.CanvasHistory;
 import com.wwimmo.imageeditor.utils.Utility;
 import com.wwimmo.imageeditor.utils.layers.Font;
 import com.wwimmo.imageeditor.utils.layers.Layer;
@@ -343,7 +344,8 @@ public class ImageEditor extends View {
     private void invalidateCanvas(boolean shouldDispatchEvent) {
         if (shouldDispatchEvent) {
             WritableMap event = Arguments.createMap();
-            event.putInt("pathsUpdate", mPaths.size());
+            int countOfElements = mPaths.size() + mEntities.size();
+            event.putInt("pathsUpdate", countOfElements);
             mContext.getJSModule(RCTEventEmitter.class).receiveEvent(
                     getId(),
                     "topChange",
@@ -914,7 +916,9 @@ public class ImageEditor extends View {
         if (textEntity != null && newText != null && newText.length() > 0) {
             textEntity.getLayer().setText(newText);
             textEntity.updateEntity();
-            mHistory.add(new CanvasHistory((MotionEntity) prev,textEntity));
+            //If we proceed with undoing changes to entities, before making changes to it save it as prevEntity after
+            //updating pass prevEntity and currEntity to mHistory
+//            mHistory.add(new CanvasHistory((MotionEntity) null,textEntity));
             invalidateCanvas(true);
         }
     }
