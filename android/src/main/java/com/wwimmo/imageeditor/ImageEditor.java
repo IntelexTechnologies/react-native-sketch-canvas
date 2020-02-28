@@ -37,6 +37,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.wwimmo.imageeditor.utils.CanvasText;
+import com.wwimmo.imageeditor.utils.CanvasHistory;
 import com.wwimmo.imageeditor.utils.Utility;
 import com.wwimmo.imageeditor.utils.layers.Font;
 import com.wwimmo.imageeditor.utils.layers.Layer;
@@ -56,6 +57,7 @@ public class ImageEditor extends View {
     // Data
     private ArrayList<SketchData> mPaths = new ArrayList<SketchData>();
     private SketchData mCurrentPath = null;
+    private ArrayList<CanvasHistory> mHistory = new ArrayList<CanvasHistory>();
 
     // Gesture Detection
     private ScaleGestureDetector mScaleGestureDetector;
@@ -153,7 +155,7 @@ public class ImageEditor extends View {
             }
         }
 
-        drawAllEntitiesForSave(canvas);
+        drawAllEntities(canvas, true);
 
         return bitmap;
     }
@@ -177,6 +179,7 @@ public class ImageEditor extends View {
         }
         mEntityStrokeWidth = Utility.convertPxToDpAsFloat(mContext.getResources().getDisplayMetrics(), strokeWidth);
         mPaths.add(mCurrentPath);
+        mHistory.add(new CanvasHistory(null,mCurrentPath));
         boolean isErase = strokeColor == Color.TRANSPARENT;
         if (isErase && mDisableHardwareAccelerated == false) {
             mDisableHardwareAccelerated = true;
@@ -214,6 +217,7 @@ public class ImageEditor extends View {
         if (!exist) {
             SketchData newPath = new SketchData(id, strokeColor, strokeWidth, points);
             mPaths.add(newPath);
+            mHistory.add(new CanvasHistory(null,mCurrentPath));
             boolean isErase = strokeColor == Color.TRANSPARENT;
             if (isErase && mDisableHardwareAccelerated == false) {
                 mDisableHardwareAccelerated = true;
@@ -225,20 +229,34 @@ public class ImageEditor extends View {
     }
 
     public void deletePath(int id) {
-        int index = -1;
-        for(int i = 0; i<mPaths.size(); i++) {
-            if (mPaths.get(i).id == id) {
-                index = i;
-                break;
-            }
-        }
+     int index = -1;
+     if (mHistory.size() > 0) {
+         CanvasHistory lastEntity = mHistory.get(mHistory.size()-1);
+         if(lastEntity.currStroke != null) {
+             int strokeId = lastEntity.currStroke.id;
+             for(int i = 0; i<mPaths.size(); i++) {
+                 if (mPaths.get(i).id == strokeId) {
+                     index = i;
+                     break;
+                 }
+             }
+             mPaths.remove(index);
+         }
+         if(lastEntity.currEntity != null){
+             mEntities.remove(lastEntity.currEntity);
+             if(lastEntity.prevEntity != null) {
+//                    mEntities.add(lastEntity.prevEntity);
+             }
+             index=1;
+         }
+     }
 
-        if (index > -1) {
-            mPaths.remove(index);
-            mNeedsFullRedraw = true;
-            invalidateCanvas(true);
-        }
-    }
+     if (index > -1) {
+         mHistory.remove(mHistory.size()-1);
+         mNeedsFullRedraw = true;
+         invalidateCanvas(true);
+     }
+ }
 
     public void end() {
         if (mCurrentPath != null) {
@@ -321,14 +339,15 @@ public class ImageEditor extends View {
         }
 
         if (!mEntities.isEmpty()) {
-            drawAllEntities(mSketchCanvas);
+            drawAllEntities(mSketchCanvas,false);
         }
     }
 
     private void invalidateCanvas(boolean shouldDispatchEvent) {
         if (shouldDispatchEvent) {
             WritableMap event = Arguments.createMap();
-            event.putInt("pathsUpdate", mPaths.size());
+            int countOfElements = mPaths.size() + mEntities.size();
+            event.putInt("pathsUpdate", countOfElements);
             mContext.getJSModule(RCTEventEmitter.class).receiveEvent(
                     getId(),
                     "topChange",
@@ -782,6 +801,7 @@ public class ImageEditor extends View {
             initEntityBorder(entity);
             initialTranslateAndScale(entity);
             mEntities.add(entity);
+            mHistory.add(new CanvasHistory(null,entity));
             onShapeSelectionChanged(entity);
             selectEntity(entity);
         }
@@ -797,7 +817,20 @@ public class ImageEditor extends View {
         entity.setBorderStyle(mEntityBorderStyle);
     }
 
-    private void drawAllEntitiesForSave(Canvas canvas) {
+//    private void drawAllEntitiesForSave(Canvas canvas) {
+//        Paint paint = new Paint();
+//        paint.setColor(mEntityStrokeColor);
+//        paint.setStrokeWidth(mEntityStrokeWidth);
+//        Paint borderPaint = new Paint();
+//        borderPaint.setColor(Color.TRANSPARENT);
+//
+//        for (int i = 0; i < mEntities.size(); i++) {
+//            mEntities.get(i).setBorderPaint(borderPaint);
+//            mEntities.get(i).draw(canvas, paint);
+//        }
+//    }
+
+    private void drawAllEntities(Canvas canvas, Boolean forSave ) {
         Paint paint = new Paint();
         paint.setColor(mEntityStrokeColor);
         paint.setStrokeWidth(mEntityStrokeWidth);
@@ -805,17 +838,9 @@ public class ImageEditor extends View {
         borderPaint.setColor(Color.TRANSPARENT);
 
         for (int i = 0; i < mEntities.size(); i++) {
-            mEntities.get(i).setBorderPaint(borderPaint);
-            mEntities.get(i).draw(canvas, paint);
-        }
-    }
+           if(forSave)
+               mEntities.get(i).setBorderPaint(borderPaint);
 
-    private void drawAllEntities(Canvas canvas) {
-        Paint paint = new Paint();
-        paint.setColor(mEntityStrokeColor);
-        paint.setStrokeWidth(mEntityStrokeWidth);
-
-        for (int i = 0; i < mEntities.size(); i++) {
             mEntities.get(i).draw(canvas, paint);
         }
     }
@@ -918,6 +943,9 @@ public class ImageEditor extends View {
         if (textEntity != null && newText != null && newText.length() > 0) {
             textEntity.getLayer().setText(newText);
             textEntity.updateEntity();
+            //If we proceed with undoing changes to entities, before making changes to it save it as prevEntity after
+            //updating pass prevEntity and currEntity to mHistory
+//            mHistory.add(new CanvasHistory((MotionEntity) null,textEntity));
             invalidateCanvas(true);
         }
     }
@@ -1015,10 +1043,31 @@ public class ImageEditor extends View {
         @Override
         public boolean onMove(MoveGestureDetector detector) {
             if (mSelectedEntity != null) {
-                handleTranslate(detector.getFocusDelta());
-                return true;
+                //get entity frame
+                PointF centerPoint =  mSelectedEntity.absoluteCenter();
+                float width = mSelectedEntity.getWidth();
+                float height = mSelectedEntity.getHeight();
+
+                //get entity bounds to see if the drag was generated within bounds
+                float minX = centerPoint.x - (width * mSelectedEntity.getHolyScale() * 0.5F);
+                float minY = centerPoint.y - (height * mSelectedEntity.getHolyScale() * 0.5F);
+                float maxX = centerPoint.x + (width * mSelectedEntity.getHolyScale() * 0.5F);
+                float maxY = centerPoint.y + (height * mSelectedEntity.getHolyScale() * 0.5F);
+
+                //get the coordinates of touch
+                float touchX = detector.mCurrFocusInternal.x;
+                float touchY = detector.mCurrFocusInternal.y;
+
+                if ((touchX >= minX && touchX <= maxX) && (touchY >= minY && touchY <= maxY)) {
+                    handleTranslate(detector.getFocusDelta());
+                    return true;
+                }
+                return false;
+
             }
             return false;
         }
     }
+
+
 }

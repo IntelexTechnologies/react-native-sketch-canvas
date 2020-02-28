@@ -28,7 +28,7 @@ public class MoveGestureDetector extends BaseGestureDetector {
 
     private static final PointF FOCUS_DELTA_ZERO = new PointF();
     private final OnMoveGestureListener mListener;
-    private PointF mCurrFocusInternal;
+    public  PointF mCurrFocusInternal;
     private PointF mPrevFocusInternal;
     private PointF mFocusExternal = new PointF();
     private PointF mFocusDeltaExternal = new PointF();

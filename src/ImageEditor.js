@@ -168,6 +168,13 @@ class ImageEditor extends React.Component {
     }
 
     addShape(config) {
+        let shapeId = {
+            id: parseInt(Math.random() * 100000000),
+            color: null,
+            width: null,
+            data: []
+        };
+        this._paths.push({ path: shapeId, size: null, drawer: null});
         if (config) {
             let fontSize = config.textShapeFontSize ? config.textShapeFontSize : 0;
             UIManager.dispatchViewManagerCommand(this._handle, UIManager.getViewManagerConfig(RNImageEditor).Commands.addShape, [
