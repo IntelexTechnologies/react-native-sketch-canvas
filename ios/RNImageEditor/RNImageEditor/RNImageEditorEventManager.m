@@ -19,14 +19,14 @@ RCT_EXPORT_MODULE();
 
 - (NSArray<NSString *> *)supportedEvents
 {
-  return @[@"EventReminder"];
+  return @[@"textEntitySelected"];
 }
 
 - (void)emitEventInternal:(NSString *)selectedText
 {
     //  NSString *text = selectedText;
     if (hasListeners) {
-        [self sendEventWithName:@"EventReminder" body:@{@"selectedText": selectedText}];
+        [self sendEventWithName:@"textEntitySelected" body:@{@"selectedText": selectedText}];
     }
 }
 
