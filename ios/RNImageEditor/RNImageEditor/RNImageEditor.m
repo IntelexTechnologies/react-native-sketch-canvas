@@ -14,6 +14,7 @@
 #import "entities/ArrowEntity.h"
 #import "entities/TextEntity.h"
 #import "CanvasHistory.h"
+#import "RNImageEditorEventManager.h"
 
 @implementation RNImageEditor
 {
@@ -305,9 +306,9 @@
                     strokeColor: strokeColor
                     strokeWidth: strokeWidth];
     [_paths addObject: _currentPath];
-      CanvasHistory *stroke =[[CanvasHistory alloc]
-              initWithPreviousStroke:nil
-              currentStroke:_currentPath];
+    CanvasHistory *stroke =[[CanvasHistory alloc]
+                            initWithPreviousStroke:nil
+                            currentStroke:_currentPath];
     [_canvasHistory addObject:stroke];
 }
 
@@ -331,8 +332,8 @@
                                                                  points: points];
         [_paths addObject: data];
         CanvasHistory *stroke =[[CanvasHistory alloc]
-                  initWithPreviousStroke:nil
-                  currentStroke:data];
+                                initWithPreviousStroke:nil
+                                currentStroke:data];
         [_canvasHistory addObject:stroke];
         [data drawInContext:_drawingContext];
         [self setFrozenImageNeedsUpdate];
@@ -955,8 +956,7 @@
 
 - (void)notifyPathsUpdate {
     if (_onChange) {
-        NSUInteger countOfElements = _paths.count + self.motionEntities.count;
-        _onChange(@{ @"pathsUpdate": @(countOfElements) });
+        _onChange(@{ @"pathsUpdate": @(_paths.count) });
     }
 }
 
@@ -965,6 +965,17 @@
     if (nextEntity) {
         isShapeSelected = YES;
     }
+    
+    if (nextEntity && [nextEntity isKindOfClass:[TextEntity class]]) {
+        TextEntity* textEntity =  (TextEntity *)nextEntity;
+        NSString* text = textEntity.text;
+        RNImageEditorEventManager *notification = [RNImageEditorEventManager allocWithZone: nil];
+        [notification emitEventInternal:text];
+    } else {
+        RNImageEditorEventManager *notification = [RNImageEditorEventManager allocWithZone: nil];
+        [notification emitEventInternal:@""];
+    }
+    
     if (_onChange) {
         if (isShapeSelected) {
             _onChange(@{ @"isShapeSelected": @YES });

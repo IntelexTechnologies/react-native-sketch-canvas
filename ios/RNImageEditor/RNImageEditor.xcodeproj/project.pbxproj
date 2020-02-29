@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		25CC4E12240827CB0045967B /* CanvasHistory.m in Sources */ = {isa = PBXBuildFile; fileRef = 25CC4E11240827CB0045967B /* CanvasHistory.m */; };
+		2C0C300C2409CEFF005AC2EA /* RNImageEditorEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C0C300A2409CEFF005AC2EA /* RNImageEditorEventManager.m */; };
 		8579D13721889DE500773C27 /* TextEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 8579D13621889DE500773C27 /* TextEntity.m */; };
 		858EE6372180DFBD009C9E08 /* CircleEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 858EE6362180DFBD009C9E08 /* CircleEntity.m */; };
 		85C9F6F2218879DB00BD64B4 /* RectEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 85C9F6F1218879DB00BD64B4 /* RectEntity.m */; };
@@ -38,6 +39,8 @@
 /* Begin PBXFileReference section */
 		25CC4E102408273E0045967B /* CanvasHistory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CanvasHistory.h; sourceTree = "<group>"; };
 		25CC4E11240827CB0045967B /* CanvasHistory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CanvasHistory.m; sourceTree = "<group>"; };
+		2C0C300B2409CEFF005AC2EA /* RNImageEditorEventManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNImageEditorEventManager.h; sourceTree = "<group>"; };
+		2C0C300A2409CEFF005AC2EA /* RNImageEditorEventManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNImageEditorEventManager.m; sourceTree = "<group>"; };
 		8579D13521889D4800773C27 /* TextEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextEntity.h; sourceTree = "<group>"; };
 		8579D13621889DE500773C27 /* TextEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TextEntity.m; sourceTree = "<group>"; };
 		858EE6312180DEC5009C9E08 /* CircleEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CircleEntity.h; sourceTree = "<group>"; };
@@ -127,6 +130,8 @@
 				DEB694861F322F2A00DC6841 /* RNImageEditorManager.m */,
 				DEFBA25B1F322B6000A4545C /* RNImageEditor.h */,
 				DEFBA25C1F322B6000A4545C /* RNImageEditor.m */,
+				2C0C300B2409CEFF005AC2EA /* RNImageEditorEventManager.h */,
+				2C0C300A2409CEFF005AC2EA /* RNImageEditorEventManager.m */,
 				DE0C997E1F32D596001BDE8B /* RNImageEditorData.h */,
 				DE0C997F1F32D596001BDE8B /* RNImageEditorData.m */,
 				DED3A13620A4159A00D72FBF /* RNImageEditorUtility.h */,
@@ -202,6 +207,7 @@
 				8579D13721889DE500773C27 /* TextEntity.m in Sources */,
 				DED3A13720A4159A00D72FBF /* RNImageEditorUtility.m in Sources */,
 				85C9F6F2218879DB00BD64B4 /* RectEntity.m in Sources */,
+				2C0C300C2409CEFF005AC2EA /* RNImageEditorEventManager.m in Sources */,
 				DE0C99801F32D596001BDE8B /* RNImageEditorData.m in Sources */,
 				D70446F6229682C5007BBE77 /* BackgroundText.m in Sources */,
 				D7BC84182180814600A275D3 /* MotionEntity.m in Sources */,
