@@ -750,7 +750,7 @@ public class ImageEditor extends View {
         }
 
         TextEntity textEntity = null;
-        if (mSketchCanvas.getWidth() < 120 || mSketchCanvas.getHeight() < 120) {
+        if (mSketchCanvas.getWidth() < 130 || mSketchCanvas.getHeight() < 130) {
             textEntity = new TextEntity(textLayer, mDrawingCanvas.getWidth(), mDrawingCanvas.getHeight());
         } else {
             textEntity = new TextEntity(textLayer, mSketchCanvas.getWidth(), mSketchCanvas.getHeight());
