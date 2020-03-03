@@ -94,6 +94,13 @@
 
 - (void)updateText:(NSString *)newText {
     self.text = newText;
+    CGRect textRect = [self.text boundingRectWithSize:CGSizeMake(self.bounds.size.width, CGFLOAT_MAX)
+                                                   options:NSStringDrawingUsesLineFragmentOrigin
+                                                attributes:self.textAttributes
+                                                   context:nil];
+    self.textSize = textRect.size;
+    self.bounds = CGRectMake(self.bounds.origin.x, self.bounds.origin.y, textRect.size.width, textRect.size.height);
+    self.initialBoundsSize = self.bounds.size;
 }
 
 - (void)updateFontSize:(CGFloat)newFontSize {
