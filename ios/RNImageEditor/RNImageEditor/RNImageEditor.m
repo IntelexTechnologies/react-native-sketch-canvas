@@ -915,22 +915,24 @@
             // Figure out where the user is trying to drag the view.
             CGPoint newCenter = CGPointMake( sender.view.center.x + translation.x,
                                             sender.view.center.y + translation.y);
-            /*
-            This logic limits the text dragging to the image boundary
-             
-            // find the bounds of canvas
+           /*  This logic limits the text dragging to the image boundary (old logic, kept incase we need it later)
             CGFloat centerMaxY = ( self.bounds.origin.y ) + (sender.view.frame.size.height/2);
             CGFloat centerMinY = (self.frame.size.height ) - (sender.view.frame.size.height/2);
             CGFloat centerMaxX = ( self.bounds.origin.x) + (sender.view.frame.size.width/2) ;
-            CGFloat centerMinX = (self.frame.size.width ) - (sender.view.frame.size.width/2);
+            CGFloat centerMinX = (self.frame.size.width ) - (sender.view.frame.size.width/2); */
+            
+            // find the bounds of canvas, to limit text within it
+            CGFloat centerMaxY = ( self.bounds.origin.y ) ;
+            CGFloat centerMinY = (self.frame.size.height ) ;
+            CGFloat centerMaxX = ( self.bounds.origin.x) ;
+            CGFloat centerMinX = (self.frame.size.width ) ;
 
-            // limit the move to be within the canvas
+            // limit the bounds within which text can be moved
             newCenter.y = MAX(centerMaxY, newCenter.y);
             newCenter.y = MIN(centerMinY, newCenter.y);
             newCenter.x = MAX(centerMaxX, newCenter.x);
             newCenter.x = MIN(centerMinX, newCenter.x);
-             */
-            
+           
             sender.view.center = newCenter;
             [sender setTranslation:CGPointZero inView:self];
         }
