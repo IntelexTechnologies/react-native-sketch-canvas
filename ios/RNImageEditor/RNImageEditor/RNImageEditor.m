@@ -76,6 +76,8 @@
         //        [self addGestureRecognizer:self.moveGesture];
         [self addGestureRecognizer:self.scaleGesture];
         
+        // makes the text go under image if dragged outside the image
+        self.clipsToBounds = true;
     }
     return self;
 }
@@ -913,26 +915,31 @@
             // Figure out where the user is trying to drag the view.
             CGPoint newCenter = CGPointMake( sender.view.center.x + translation.x,
                                             sender.view.center.y + translation.y);
-            
+            /*
+            This logic limits the text dragging to the image boundary
+             
             // find the bounds of canvas
             CGFloat centerMaxY = ( self.bounds.origin.y ) + (sender.view.frame.size.height/2);
             CGFloat centerMinY = (self.frame.size.height ) - (sender.view.frame.size.height/2);
             CGFloat centerMaxX = ( self.bounds.origin.x) + (sender.view.frame.size.width/2) ;
             CGFloat centerMinX = (self.frame.size.width ) - (sender.view.frame.size.width/2);
-            
+
             // limit the move to be within the canvas
             newCenter.y = MAX(centerMaxY, newCenter.y);
             newCenter.y = MIN(centerMinY, newCenter.y);
             newCenter.x = MAX(centerMaxX, newCenter.x);
             newCenter.x = MIN(centerMinX, newCenter.x);
+             */
             
             sender.view.center = newCenter;
             [sender setTranslation:CGPointZero inView:self];
         }
-//        if(state == UIGestureRecognizerStateEnded) {
-//            [self.selectedEntity setIsSelected:NO];
-//            [self.selectedEntity setNeedsDisplay];
-//        }
+        /*
+         This logic deselects the text entity after the drag ends
+        if(state == UIGestureRecognizerStateEnded) {
+            [self.selectedEntity setIsSelected:NO];
+            [self.selectedEntity setNeedsDisplay];
+        } */
     }
 }
 
